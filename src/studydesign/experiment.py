@@ -2,22 +2,6 @@ from pandas import DataFrame, concat
 from typing import Any, Iterable, Callable
 
 
-#%%
-import pandas as pd
-
-n_rows = 10
-fixed = {"A": 0, "B": 0}
-variables = {"A": [1, 2], "B": [3, 4, 5]}
-rows = []
-for name, variable in variables.items():
-    for value in variable:
-        row = fixed.copy()
-        row[name] = value
-        rows.append(row)
-pd.DataFrame(rows)
-#%%
-
-
 def duplicate_rows(df: DataFrame, n_rows: int) -> DataFrame:
     return df.loc[df.index.repeat(n_rows)].reset_index(drop=True)
 
