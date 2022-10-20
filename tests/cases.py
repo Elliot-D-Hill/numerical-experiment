@@ -6,7 +6,7 @@ from pandas import DataFrame
 class RunExperimentOutputCases:
     default: DataFrame = DataFrame(
         {
-            "experiment": {0: 1, 1: 2, 2: 1, 3: 2, 4: 3, 5: 1, 6: 2, 7: 3},
+            "run": {0: 1, 1: 2, 2: 1, 3: 2, 4: 3, 5: 1, 6: 2, 7: 3},
             "variable": {
                 0: "x1",
                 1: "x1",
@@ -26,7 +26,7 @@ class RunExperimentOutputCases:
 
     exclude_single: DataFrame = DataFrame(
         {
-            "experiment": {0: 1, 1: 2, 2: 1, 3: 2, 4: 3},
+            "run": {0: 1, 1: 2, 2: 1, 3: 2, 4: 3},
             "variable": {0: "x1", 1: "x1", 2: "x3", 3: "x3", 4: "x3"},
             "result": {0: 6, 1: 7, 2: 9, 3: 10, 4: 11},
             "x1": {0: 1, 1: 2, 2: 1, 3: 1, 4: 1},
@@ -37,7 +37,7 @@ class RunExperimentOutputCases:
 
     exclude_multiple: DataFrame = DataFrame(
         {
-            "experiment": {0: 1, 1: 2, 2: 3},
+            "run": {0: 1, 1: 2, 2: 3},
             "variable": {0: "x2", 1: "x2", 2: "x2"},
             "result": {0: 7, 1: 8, 2: 9},
             "x1": {0: 1, 1: 1, 2: 1},

@@ -40,6 +40,8 @@ class TestRunExperiment:
     def test_run_experiment(self, make_experiment, output_cases):
         experiment_input = make_experiment()
         experiment_output = run_experiment(**experiment_input)
+        print(experiment_output)
+        print(output_cases.default)
         assert_frame_equal(experiment_output, output_cases.default)
 
     def test_run_experiment_exclude_single(self, make_experiment, output_cases):
@@ -51,3 +53,5 @@ class TestRunExperiment:
         experiment_input = make_experiment(exclude=["x1", "x3"])
         experiment_output = run_experiment(**experiment_input)
         assert_frame_equal(experiment_output, output_cases.exclude_multiple)
+
+    # TODO add test case for strings/lists
