@@ -6,7 +6,7 @@ The package `studydesign` is based on a single function `run_experiment`. This f
 
 - `experiment` - a function which returns the results of the experiment as a dictionary
 - `variables` - a dictionary containing the variables of the experiment. The keys must match the arguments of the `experiment` function
-- `fixed` - a dictionary containing the fixed values that will be held constant while each variable is varied. The keys of `fixed` must match the keys of `variables` and `experiment`
+- `fixed_parameters` - a dictionary containing the fixed values that will be held constant while each variable is varied. The keys of `fixed` must match the keys of `variables` and `experiment`
 - `exclude` - (optional) a list of variables to exclude from the experiment
 
 ```python
