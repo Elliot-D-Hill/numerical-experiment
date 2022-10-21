@@ -4,28 +4,35 @@ from typing import Callable
 from copy import deepcopy
 
 
-def make_replicates(
-    f: Callable, variables: dict, fixed_parameters: dict, exclude: list[str]
-) -> dict:
-    replicates = []
-    for name, variable in variables.items():
-        if name not in exclude:
-            for i, value in enumerate(atleast_1d(variable)):
-                replicate = deepcopy(fixed_parameters)
-                replicate[name] = value
-                replicate["result"] = f(**replicate)
-                replicate["variable"] = name
-                replicate["run"] = i + 1
-                replicates.append(replicate)
-    return replicates
+def exclude_variables(variables: dict, exclude: list) -> dict:
+    if exclude is None:
+        exclude = []
+    return {
+        name: variable for name, variable in variables.items() if name not in exclude
+    }
+
+
+def format_results(results: dict) -> DataFrame:
+    results = DataFrame(results)
+    columns = results.columns.tolist()
+    return results[columns[-2:] + columns[:-2]]
 
 
 def run_experiment(
-    f: Callable, variables: dict, fixed_parameters: dict, exclude: list[str] = None
+    experiment: Callable,
+    variables: dict,
+    fixed_parameters: dict,
+    exclude: list[str] = None,
 ) -> DataFrame:
-    if exclude is None:
-        exclude = []
-    replicates = make_replicates(f, variables, fixed_parameters, exclude)
-    results = DataFrame(replicates)
-    results = results[["run", "variable", "result"] + list(fixed_parameters.keys())]
-    return results
+    variables = exclude_variables(variables, exclude)
+    print(variables)
+    results = []
+    for name, variable in variables.items():
+        for run, value in enumerate(atleast_1d(variable)):
+            parameters = deepcopy(fixed_parameters)
+            parameters[name] = value
+            parameters = parameters | experiment(**parameters)
+            parameters["variable"] = name
+            parameters["run"] = run + 1
+            results.append(parameters)
+    return format_results(results)
