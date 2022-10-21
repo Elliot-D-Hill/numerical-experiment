@@ -25,7 +25,6 @@ def run_experiment(
     exclude: list[str] = None,
 ) -> DataFrame:
     variables = exclude_variables(variables, exclude)
-    print(variables)
     results = []
     for name, variable in variables.items():
         for run, value in enumerate(atleast_1d(variable)):
