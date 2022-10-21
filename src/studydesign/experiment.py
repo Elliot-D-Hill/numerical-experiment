@@ -2,6 +2,7 @@ from numpy import atleast_1d
 from pandas import DataFrame
 from typing import Callable
 from copy import deepcopy
+from tqdm import tqdm
 
 
 def exclude_variables(variables: dict, exclude: list) -> dict:
@@ -27,7 +28,8 @@ def run_experiment(
     variables = exclude_variables(variables, exclude)
     results = []
     for name, variable in variables.items():
-        for run, value in enumerate(atleast_1d(variable)):
+        values = enumerate(atleast_1d(variable))
+        for run, value in tqdm(values, total=len(variable), desc=name):
             parameters = deepcopy(fixed_parameters)
             parameters[name] = value
             parameters = parameters | experiment(**parameters)
