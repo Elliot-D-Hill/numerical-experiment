@@ -29,7 +29,7 @@ fixed_parameters = {
     "x2": 2,
     "x3": 3
 }
-results = run_experiment(experiment, variables, fixed)
+results = run_experiment(experiment, variables, fixed_parameters)
 print(results)
 ```
 |      | variable |  run |   x1 |   x2 |   x3 | result | true_value | error |
