@@ -6,9 +6,9 @@ build-backend = "hatchling.build"
 name = "studydesign"
 version = "0.0.1"
 authors = [{ name = "Elliot Hill", email = "elliot.douglas.hill@gmail.com" }]
-description = "A harness for simply univariate numerical experiments"
+description = "A harness for univariate numerical experiments"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
