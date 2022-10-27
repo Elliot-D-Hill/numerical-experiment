@@ -1,7 +1,7 @@
 import pytest
 from pandas.testing import assert_frame_equal
 
-from studydesign.experiment import exclude_variables, format_results, run_experiment
+from src.studydesign.experiment import exclude_variables, format_results, run_experiment
 from cases import RunExperimentCases, FormatResultsCases, ExcludeVariablesCases
 
 
