@@ -28,8 +28,10 @@ def run_experiment(
     variables = exclude_variables(variables, exclude)
     results = []
     for name, variable in variables.items():
-        values = enumerate(atleast_1d(variable))
-        for run, value in tqdm(values, total=len(variable), desc=name):
+        variable = atleast_1d(variable)
+        n_values = len(variable)
+        values = enumerate(variable)
+        for run, value in tqdm(values, total=n_values, desc=name):
             parameters = deepcopy(fixed_parameters)
             parameters[name] = value
             parameters = parameters | experiment(**parameters)
