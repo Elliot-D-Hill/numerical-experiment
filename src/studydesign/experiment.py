@@ -1,53 +1,60 @@
 from itertools import product
+from copy import deepcopy
+from typing import Callable
+from dataclasses import dataclass, field
+
 from numpy import atleast_1d
 from pandas import DataFrame
-from typing import Callable
-from copy import deepcopy
 from tqdm import tqdm
 
 
-def exclude_variables(variables: dict, exclude: list) -> dict:
-    if exclude is None:
-        exclude = []
-    return {
-        name: variable for name, variable in variables.items() if name not in exclude
-    }
+@dataclass
+class Trial:
+    variable_name: str
+    parameters: dict
+    outcome: dict
+
+    def to_dict(self):
+        return {"variable": self.variable_name} | self.parameters | self.outcome
 
 
-def make_interactions(interactions, experiment, variables, fixed_parameters):
-    interaction_parameters = []
-    for name_a, name_b in interactions:
-        for a, b in product(variables[name_a], variables[name_b]):
-            parameters = deepcopy(fixed_parameters)
-            parameters[name_a] = a
-            parameters[name_b] = b
-            parameters = (
-                {"variable": name_a + "_" + name_b}
-                | parameters
-                | experiment(**parameters)
-            )
-            interaction_parameters.append(parameters)
-    return interaction_parameters
+@dataclass
+class Experiment:
+    f: Callable
+    variables: dict
+    fixed_parameters: dict
+    trials: list[Trial] = field(default_factory=list)
 
+    def run_univariate(self, exclude: list = None) -> DataFrame:
+        if exclude is None:
+            exclude = []
+        trials = []
+        for name, variable in self.variables.items():
+            if name in exclude:
+                continue
+            values = atleast_1d(variable)
+            for value in tqdm(values, total=len(values), desc=name):
+                parameters = deepcopy(self.fixed_parameters)
+                parameters[name] = value
+                outcome = self.f(**parameters)
+                trials.append(Trial(name, parameters, outcome))
+        return self.to_dataframe(trials)
 
-def run_experiment(
-    experiment: Callable,
-    variables: dict,
-    fixed_parameters: dict,
-    interactions: list[tuple[str]] = None,
-    exclude: list[str] = None,
-) -> DataFrame:
-    variables = exclude_variables(variables, exclude)
-    results = []
-    for name, variable in variables.items():
-        for run, value in tqdm(atleast_1d(variable), total=len(variable), desc=name):
-            parameters = deepcopy(fixed_parameters)
-            parameters[name] = value
-            parameters = {"variable": name} | parameters | experiment(**parameters)
-            results.append(parameters)
-    if interactions is not None:
-        iteraction_results = make_interactions(
-            interactions, experiment, variables, fixed_parameters
-        )
-        results = results + iteraction_results
-    return DataFrame(results)
+    def run_interactions(self, interactions: list[tuple[str, str]]) -> DataFrame:
+        trials = []
+        for name_a, name_b in interactions:
+            name = name_a + "_" + name_b
+            variable_a = self.variables[name_a]
+            variable_b = self.variables[name_b]
+            n_values = len(variable_a) * len(variable_b)
+            values = product(variable_a, variable_b)
+            for value_a, value_b in tqdm(values, total=n_values, desc=name):
+                parameters = deepcopy(self.fixed_parameters)
+                parameters[name_a] = value_a
+                parameters[name_b] = value_b
+                outcome = self.f(**parameters)
+                trials.append(Trial(name, parameters, outcome))
+        return self.to_dataframe(trials)
+
+    def to_dataframe(self, trials: list[Trial]) -> DataFrame:
+        return DataFrame([trial.to_dict() for trial in trials])
