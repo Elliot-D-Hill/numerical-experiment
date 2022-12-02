@@ -1,7 +1,7 @@
 from itertools import product
 from copy import deepcopy
 from typing import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from numpy import atleast_1d
 from pandas import DataFrame
@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 @dataclass
 class Trial:
-    variable_name: str
+    variable_name: str | list[str]
     parameters: dict
     outcome: dict
 
@@ -23,7 +23,6 @@ class Experiment:
     f: Callable
     variables: dict
     fixed_parameters: dict
-    trials: list[Trial] = field(default_factory=list)
 
     def run_univariate(self, exclude: list = None) -> DataFrame:
         if exclude is None:
@@ -35,14 +34,14 @@ class Experiment:
             values = atleast_1d(variable)
             for value in tqdm(values, total=len(values), desc=name):
                 parameters = deepcopy(self.fixed_parameters)
-                parameters[name] = value
+                parameters.update({name: value})
                 outcome = self.f(**parameters)
                 trials.append(Trial(name, parameters, outcome))
         return self.to_dataframe(trials)
 
-    def run_interactions(self, interactions: list[tuple[str, str]]) -> DataFrame:
+    def run_bivariate(self, variable_pairs: list[tuple[str, str]]) -> DataFrame:
         trials = []
-        for name_a, name_b in interactions:
+        for name_a, name_b in variable_pairs:
             name = name_a + "_" + name_b
             variable_a = self.variables[name_a]
             variable_b = self.variables[name_b]
@@ -50,8 +49,7 @@ class Experiment:
             values = product(variable_a, variable_b)
             for value_a, value_b in tqdm(values, total=n_values, desc=name):
                 parameters = deepcopy(self.fixed_parameters)
-                parameters[name_a] = value_a
-                parameters[name_b] = value_b
+                parameters.update({name_a: value_a, name_b: value_b})
                 outcome = self.f(**parameters)
                 trials.append(Trial(name, parameters, outcome))
         return self.to_dataframe(trials)

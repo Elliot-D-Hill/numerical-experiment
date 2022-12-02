@@ -37,8 +37,8 @@ class TestExperiment:
         experiment_output = experiment.run_univariate(exclude=["x1", "x3"])
         assert_frame_equal(experiment_output, cases.exclude_multiple_output)
 
-    def test_run_interactions(self, experiment, cases):
-        experiment_output = experiment.run_interactions(interactions=[("x2", "x3")])
+    def test_run_bivariate(self, experiment, cases):
+        experiment_output = experiment.run_bivariate(variable_pairs=[("x2", "x3")])
         assert_frame_equal(experiment_output, cases.run_interactions_output)
 
 
