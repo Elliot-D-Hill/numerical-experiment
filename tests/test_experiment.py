@@ -1,7 +1,7 @@
 import pytest
 from pandas.testing import assert_frame_equal
 
-from studydesign.experiment import Experiment, Trial
+from studydesign.experiment import Experiment
 from cases import ExperimentCases
 
 
@@ -38,19 +38,5 @@ class TestExperiment:
         assert_frame_equal(experiment_output, cases.exclude_multiple_output)
 
     def test_run_bivariate(self, experiment, cases):
-        experiment_output = experiment.run_bivariate(variable_pairs=[("x2", "x3")])
+        experiment_output = experiment.run_bivariate(pairs=[("x2", "x3")])
         assert_frame_equal(experiment_output, cases.run_interactions_output)
-
-
-class TestTrial:
-    @pytest.fixture(scope="function")
-    def trial_kwargs(self):
-        return {
-            "variable_name": "name",
-            "parameters": {"x1": 1, "x2": 2},
-            "outcome": {"result": 0},
-        }
-
-    def test_trial(self, trial_kwargs):
-        trial = Trial(**trial_kwargs)
-        assert trial.to_dict() == {"variable": "name", "x1": 1, "x2": 2, "result": 0}

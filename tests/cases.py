@@ -6,15 +6,15 @@ from pandas import DataFrame
 class ExperimentCases:
     run_univariate_output: DataFrame = DataFrame(
         {
-            "variable": {
-                0: "x1",
-                1: "x1",
-                2: "x2",
-                3: "x2",
-                4: "x2",
-                5: "x3",
-                6: "x3",
-                7: "x3",
+            "manipulated": {
+                0: ["x1"],
+                1: ["x1"],
+                2: ["x2"],
+                3: ["x2"],
+                4: ["x2"],
+                5: ["x3"],
+                6: ["x3"],
+                7: ["x3"],
             },
             "x1": {0: 1, 1: 2, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1},
             "x2": {0: 2, 1: 2, 2: 3, 3: 4, 4: 5, 5: 2, 6: 2, 7: 2},
@@ -26,7 +26,7 @@ class ExperimentCases:
     )
     exclude_single_output: DataFrame = DataFrame(
         {
-            "variable": {0: "x1", 1: "x1", 2: "x3", 3: "x3", 4: "x3"},
+            "manipulated": {0: ["x1"], 1: ["x1"], 2: ["x3"], 3: ["x3"], 4: ["x3"]},
             "x1": {0: 1, 1: 2, 2: 1, 3: 1, 4: 1},
             "x2": {0: 2, 1: 2, 2: 2, 3: 2, 4: 2},
             "x3": {0: 3, 1: 3, 2: 6, 3: 7, 4: 8},
@@ -37,7 +37,7 @@ class ExperimentCases:
     )
     exclude_multiple_output: DataFrame = DataFrame(
         {
-            "variable": {0: "x2", 1: "x2", 2: "x2"},
+            "manipulated": {0: ["x2"], 1: ["x2"], 2: ["x2"]},
             "x1": {0: 1, 1: 1, 2: 1},
             "x2": {0: 3, 1: 4, 2: 5},
             "x3": {0: 3, 1: 3, 2: 3},
@@ -49,16 +49,16 @@ class ExperimentCases:
 
     run_interactions_output: DataFrame = DataFrame(
         {
-            "variable": {
-                0: "x2_x3",
-                1: "x2_x3",
-                2: "x2_x3",
-                3: "x2_x3",
-                4: "x2_x3",
-                5: "x2_x3",
-                6: "x2_x3",
-                7: "x2_x3",
-                8: "x2_x3",
+            "manipulated": {
+                0: ["x2", "x3"],
+                1: ["x2", "x3"],
+                2: ["x2", "x3"],
+                3: ["x2", "x3"],
+                4: ["x2", "x3"],
+                5: ["x2", "x3"],
+                6: ["x2", "x3"],
+                7: ["x2", "x3"],
+                8: ["x2", "x3"],
             },
             "x1": {0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1},
             "x2": {0: 3, 1: 3, 2: 3, 3: 4, 4: 4, 5: 4, 6: 5, 7: 5, 8: 5},

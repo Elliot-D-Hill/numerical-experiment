@@ -1,6 +1,6 @@
 from itertools import product
 from copy import deepcopy
-from typing import Callable
+from typing import Callable, Iterable
 from dataclasses import dataclass
 
 from numpy import atleast_1d
@@ -9,50 +9,51 @@ from tqdm import tqdm
 
 
 @dataclass
-class Trial:
-    variable_name: str | list[str]
-    parameters: dict
-    outcome: dict
-
-    def to_dict(self):
-        return {"variable": self.variable_name} | self.parameters | self.outcome
-
-
-@dataclass
 class Experiment:
     f: Callable
     variables: dict
     fixed_parameters: dict
 
+    def __post_init__(self):
+        self.variables = self.make_variables_iterable()
+
+    def make_variables_iterable(self) -> dict:
+        return {key: atleast_1d(values) for key, values in self.variables.items()}
+
+    def make_parameters(self, manipulated: dict) -> dict:
+        parameters = deepcopy(self.fixed_parameters)
+        parameters.update(manipulated)
+        return parameters
+
+    def run_trial(self, manipulated: dict) -> dict:
+        variable_names = list(manipulated.keys())
+        parameters = self.make_parameters(manipulated=manipulated)
+        outcome = self.f(**parameters)
+        return {"manipulated": variable_names} | parameters | outcome
+
     def run_univariate(self, exclude: list = None) -> DataFrame:
         if exclude is None:
             exclude = []
-        trials = []
-        for name, variable in self.variables.items():
-            if name in exclude:
-                continue
-            values = atleast_1d(variable)
-            for value in tqdm(values, total=len(values), desc=name):
-                parameters = deepcopy(self.fixed_parameters)
-                parameters.update({name: value})
-                outcome = self.f(**parameters)
-                trials.append(Trial(name, parameters, outcome))
-        return self.to_dataframe(trials)
+        return DataFrame(
+            [
+                self.run_trial(manipulated={name: value})
+                for name, variable in self.variables.items()
+                if name not in exclude
+                for value in tqdm(variable, total=len(variable), desc=name)
+            ]
+        )
 
-    def run_bivariate(self, variable_pairs: list[tuple[str, str]]) -> DataFrame:
-        trials = []
-        for name_a, name_b in variable_pairs:
-            name = name_a + "_" + name_b
-            variable_a = self.variables[name_a]
-            variable_b = self.variables[name_b]
-            n_values = len(variable_a) * len(variable_b)
-            values = product(variable_a, variable_b)
-            for value_a, value_b in tqdm(values, total=n_values, desc=name):
-                parameters = deepcopy(self.fixed_parameters)
-                parameters.update({name_a: value_a, name_b: value_b})
-                outcome = self.f(**parameters)
-                trials.append(Trial(name, parameters, outcome))
-        return self.to_dataframe(trials)
+    def make_pair_product(self, pair: tuple[str, str]) -> Iterable:
+        variable_pair = [self.variables[key] for key in pair]
+        pair_product = product(*variable_pair)
+        n_values = len(variable_pair[0]) * len(variable_pair[1])
+        return tqdm(pair_product, total=n_values, desc=", ".join(pair))
 
-    def to_dataframe(self, trials: list[Trial]) -> DataFrame:
-        return DataFrame([trial.to_dict() for trial in trials])
+    def run_bivariate(self, pairs: list[tuple[str, str]]) -> DataFrame:
+        return DataFrame(
+            [
+                self.run_trial(manipulated=dict(zip(pair, values)))
+                for pair in pairs
+                for values in self.make_pair_product(pair=pair)
+            ]
+        )
